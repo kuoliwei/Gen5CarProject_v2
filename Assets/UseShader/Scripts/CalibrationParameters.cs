@@ -12,4 +12,5 @@ public struct CalibrationParameter
     public Vector3 eulerAngles;
     public Vector3 localScale;
     public float distance;
+    public int mode;
 }

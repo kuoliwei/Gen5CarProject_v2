@@ -16,7 +16,7 @@ public class CornerScreenFollower : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SendCamPos();
+        //SendCamPos();
     }
 
     // Update is called once per frame

@@ -10,25 +10,18 @@ public class OutputChange : MonoBehaviour
 {
     [SerializeField] Camera[] cameras;
     [SerializeField] Dropdown[] dropdowns;
-    [SerializeField] RawImage[] rawImages;
-    [SerializeField] RenderTexture rt_Left;
-    [SerializeField] RenderTexture rt_Right;
-    [SerializeField] RenderTexture rt_Left_Width;
-    [SerializeField] RenderTexture rt_Right_Width;
     [SerializeField] CornorScreenController cornorScreenController;
     [SerializeField] Camera corCamGnd;
     [SerializeField] Canvas canvas;
     [SerializeField] Dropdown dropdownForCanvas;
+    string jsonPath = "DisplayIndexData";
+    string jsonName = "DisplayIndexData.json";
     // Start is called before the first frame update
     void Start()
     {
         init();
-        string savePath = Path.Combine(Application.dataPath, "DisplayIndexData");
-        string fileName = "DisplayIndexData.json";
-        
-        _ = LoadDisplayIndex(savePath, fileName);
     }
-    void init()
+    async void init()
     {
         foreach (Dropdown dropdown in dropdowns)
         {
@@ -66,30 +59,15 @@ public class OutputChange : MonoBehaviour
             dropdown.AddOptions(displayList.options);
         }
         dropdownForCanvas.AddOptions(displayList.options);
-        //for (int i = 0; i < dropdowns.Length; i++)
-        //{
-        //    dropdowns[i].value = cameras[i].targetDisplay;
-        //}
-        //dropdownForCanvas.value = 0;
-        if (cornorScreenController.mode == CornorScreenController.Mode._laboratory)
+        DisplayIndex displayIndex = await LoadDisplayIndex(Path.Combine(Application.dataPath, jsonPath), jsonName);
+        corCamGnd.transform.localEulerAngles = new Vector3(0, 0, displayIndex.groundDir);
+        for (int i = 0; i < dropdowns.Length; i++)
         {
-            rawImages[1].texture = rt_Left;
-            rawImages[2].texture = rt_Right;
+            dropdowns[i].value = displayIndex.cornerScreenCamsIndex[i];
         }
-        else if (cornorScreenController.mode == CornorScreenController.Mode._5GCar)
-        {
-            rawImages[1].texture = rt_Left_Width;
-            rawImages[2].texture = rt_Right_Width;
-        }
-        foreach (Dropdown dropdown in dropdowns)
-        {
-            dropdown.onValueChanged.AddListener(delegate {
-                ChangeDisplay();
-            });
-        }
-        dropdownForCanvas.onValueChanged.AddListener(delegate { ChangeDisplay(); });
+        dropdownForCanvas.value = displayIndex.uiIndex;
     }
-    
+
     public void ChangeDisplay()
     {
         for(int i = 0;i < cameras.Length;i++)
@@ -100,13 +78,13 @@ public class OutputChange : MonoBehaviour
     }
     public void TurnLeft()
     {
-        corCamGnd.transform.localEulerAngles -= new Vector3(0, 0, 90);
+        corCamGnd.transform.localEulerAngles = new Vector3(0, 0, (int)corCamGnd.transform.localEulerAngles.z - 90);
     }
     public void TurnRight()
     {
-        corCamGnd.transform.localEulerAngles += new Vector3(0, 0, 90);
+        corCamGnd.transform.localEulerAngles = new Vector3(0, 0, (int)corCamGnd.transform.localEulerAngles.z + 90);
     }
-    public async Task LoadDisplayIndex(string savePath, string fileName)
+    public async Task<DisplayIndex> LoadDisplayIndex(string savePath, string fileName)
     {
         string fullPath = Path.Combine(savePath, fileName);
         if (!File.Exists(fullPath))
@@ -119,29 +97,46 @@ public class OutputChange : MonoBehaviour
         if (!loaded.HasValue)
         {
             Debug.LogWarning("Failed to load calibration file.");
-            return;
+            return new DisplayIndex();
         }
 
-        DisplayIndex displayIndex = loaded.Value;
-
-        for (int i = 0; i < dropdowns.Length; i++)
-        {
-            dropdowns[i].value = displayIndex.cornerScreenCamsIndex[i];
-        }
-        dropdownForCanvas.value = displayIndex.uiIndex;
+        return loaded.Value;
     }
+    //public async Task LoadDisplayIndex(string savePath, string fileName)
+    //{
+    //    string fullPath = Path.Combine(savePath, fileName);
+    //    if (!File.Exists(fullPath))
+    //    {
+    //        Debug.LogWarning($"[LoadDisplayIndex] File does not exist: {fullPath}");
+    //        SaveDisplayIndexData();
+    //    }
+    //    var loaded = await JsonFileUtility.LoadFromFileAsync<DisplayIndex>(savePath, fileName);
+
+    //    if (!loaded.HasValue)
+    //    {
+    //        Debug.LogWarning("Failed to load calibration file.");
+    //        return;
+    //    }
+
+    //    DisplayIndex displayIndex = loaded.Value;
+
+    //    for (int i = 0; i < dropdowns.Length; i++)
+    //    {
+    //        dropdowns[i].value = displayIndex.cornerScreenCamsIndex[i];
+    //    }
+    //    dropdownForCanvas.value = displayIndex.uiIndex;
+    //}
     void SaveDisplayIndexData()
     {
         DisplayIndex displayIndex = new DisplayIndex
         {
             cornerScreenCamsIndex = new[] { cameras[0].targetDisplay, cameras[1].targetDisplay, cameras[2].targetDisplay, cameras[3].targetDisplay },
-            uiIndex = dropdownForCanvas.value
+            uiIndex = dropdownForCanvas.value,
+            groundDir = (int)corCamGnd.transform.localEulerAngles.z
         };
-        string savePath = Path.Combine(Application.dataPath, "DisplayIndexData");
-        string fileName = "DisplayIndexData.json";
 
         // Àx¦s
-        JsonFileUtility.SaveToFile(displayIndex, savePath, fileName);
+        JsonFileUtility.SaveToFile(displayIndex, Path.Combine(Application.dataPath, jsonPath), jsonName);
     }
     void OnApplicationQuit()
     {

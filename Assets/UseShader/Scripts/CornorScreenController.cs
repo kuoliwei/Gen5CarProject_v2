@@ -38,6 +38,12 @@ public class CornorScreenController : MonoBehaviour
     public Text transformInfoText;
     [SerializeField] Dropdown sceneExchange;
     [SerializeField] CornerScreenFollower cornerScreenFollower;
+    [SerializeField] RawImage refViewRawImage_Left;
+    [SerializeField] RawImage refViewRawImage_Right;
+    [SerializeField] OutputChange outputChange;
+    CalibrationParameters calibrationParameters;
+    string jsonPath = "CalibrationData";
+    string jsonName = "CalibrationData.json";
     // Start is called before the first frame update
     void Start()
     {
@@ -51,53 +57,39 @@ public class CornorScreenController : MonoBehaviour
         //}
         init();
     }
-    private void init()
+    private async void init()
     {
-        switch (mode)
-        {
-            case Mode._laboratory:
-                cam_Left.targetTexture = rt_Left;
-                quad_Left.sharedMaterial.mainTexture = rt_Left;
-                cam_Right.targetTexture = rt_Right;
-                quad_Right.sharedMaterial.mainTexture = rt_Right;
-                for (int i = 0; i < 2; i++)
-                {
-                    screenTrans[i].localScale = new Vector3(1, 1, 1);
-
-                }
-                SetOutCamOrtSize();
-                cam_Ground.transform.localEulerAngles = new Vector3(0, 0, 180);
-                if(modeChanging.value != 0)
-                {
-                    modeChanging.value = 0;
-                }
-                break;
-            case Mode._5GCar:
-                cam_Left.targetTexture = rt_Left_Width;
-                quad_Left.sharedMaterial.mainTexture = rt_Left_Width;
-                cam_Right.targetTexture = rt_Right_Width;
-                quad_Right.sharedMaterial.mainTexture = rt_Right_Width;
-                for (int i = 0; i < 2; i++)
-                {
-                    screenTrans[i].localScale = new Vector3(1, 9f / 16f, 1);
-                }
-                SetOutCamOrtSize();
-                cam_Ground.transform.localEulerAngles = new Vector3(0, 0, 90);
-                if (modeChanging.value != 1)
-                {
-                    modeChanging.value = 1;
-                }
-                break;
-        }
-        // 呼叫非同步方法但不阻塞主線程
-        string path = Path.Combine(Application.dataPath, "CalibrationData");
-        string file = "CalibrationData.json";
-
         // 使用 async 方法的最佳方式是這樣包起來呼叫
-        _ = LoadProjectNamesToDropdown(path, file);
-        DisplayTransformInfo();
-        cornerScreenFollower.SendCamPos();
+        calibrationParameters = await LoadProjectNamesToDropdown(Path.Combine(Application.dataPath, jsonPath), jsonName);
+        // 提取 projectName 成為選單選項
+        SetSceneExchangeOptions(calibrationParameters);
+        SelectScene();
     }
+    public void SetSceneExchangeOptions(CalibrationParameters calibrationParameters)
+    {
+        List<string> projectNames = new List<string>();
+        foreach (var param in calibrationParameters.calibrationParameters)
+        {
+            if (!string.IsNullOrEmpty(param.projectName))
+                projectNames.Add(param.projectName);
+        }
+        // 先清空原有選項
+        sceneExchange.ClearOptions();
+
+        // 加入新的選項
+        sceneExchange.AddOptions(projectNames);
+    }
+    //private void init()
+    //{
+    //    // 呼叫非同步方法但不阻塞主線程
+    //    string path = Path.Combine(Application.dataPath, "CalibrationData");
+    //    string file = "CalibrationData.json";
+
+    //    // 使用 async 方法的最佳方式是這樣包起來呼叫
+    //    _ = LoadProjectNamesToDropdown(path, file);
+    //    DisplayTransformInfo();
+    //    cornerScreenFollower.SendCamPos();
+    //}
     // Update is called once per frame
     void Update()
     {
@@ -174,12 +166,34 @@ public class CornorScreenController : MonoBehaviour
         {
             case 0:
                 mode = Mode._laboratory;
+                cam_Left.targetTexture = rt_Left;
+                quad_Left.sharedMaterial.mainTexture = rt_Left;
+                cam_Right.targetTexture = rt_Right;
+                quad_Right.sharedMaterial.mainTexture = rt_Right;
+                refViewRawImage_Left.texture = rt_Left;
+                refViewRawImage_Right.texture = rt_Right;
+                for (int i = 0; i < 2; i++)
+                {
+                    screenTrans[i].localScale = new Vector3(1, 1, 1);
+
+                }
+                SetOutCamOrtSize();
                 break;
             case 1:
                 mode = Mode._5GCar;
+                cam_Left.targetTexture = rt_Left_Width;
+                quad_Left.sharedMaterial.mainTexture = rt_Left_Width;
+                cam_Right.targetTexture = rt_Right_Width;
+                quad_Right.sharedMaterial.mainTexture = rt_Right_Width;
+                refViewRawImage_Left.texture = rt_Left_Width;
+                refViewRawImage_Right.texture = rt_Right_Width;
+                for (int i = 0; i < 2; i++)
+                {
+                    screenTrans[i].localScale = new Vector3(1, 9f / 16f, 1);
+                }
+                SetOutCamOrtSize();
                 break;
         }
-        init();
     }
     void SetOutCamOrtSize()
     {
@@ -239,16 +253,7 @@ public class CornorScreenController : MonoBehaviour
     {
         zooming = Zooming.none;
     }
-    public void SetOptions(List<string> optionList)
-    {
-        // 先清空原有選項
-        sceneExchange.ClearOptions();
-
-        // 加入新的選項
-        sceneExchange.AddOptions(optionList);
-    }
-    CalibrationParameters calibrationParameters;
-    public async Task LoadProjectNamesToDropdown(string savePath, string fileName)
+    public async Task<CalibrationParameters> LoadProjectNamesToDropdown(string savePath, string fileName)
     {
         string fullPath = Path.Combine(savePath, fileName);
         if (!File.Exists(fullPath))
@@ -261,32 +266,57 @@ public class CornorScreenController : MonoBehaviour
         if (!loaded.HasValue)
         {
             Debug.LogWarning("Failed to load calibration file.");
-            return;
+            return new CalibrationParameters();
         }
 
-        calibrationParameters = loaded.Value;
-
-        // 提取 projectName 成為選單選項
-        List<string> projectNames = new List<string>();
-        foreach (var param in calibrationParameters.calibrationParameters)
-        {
-            if (!string.IsNullOrEmpty(param.projectName))
-                projectNames.Add(param.projectName);
-        }
-
-        SetOptions(projectNames);
-        Debug.Log("Dropdown options updated from calibration file.");
-        SelectScene();
+        return loaded.Value;
     }
+    //public async Task LoadProjectNamesToDropdown(string savePath, string fileName)
+    //{
+    //    string fullPath = Path.Combine(savePath, fileName);
+    //    if (!File.Exists(fullPath))
+    //    {
+    //        Debug.LogWarning($"[LoadProjectNames] File does not exist: {fullPath}");
+    //        SaveCalibrationParameterData(false);
+    //    }
+    //    var loaded = await JsonFileUtility.LoadFromFileAsync<CalibrationParameters>(savePath, fileName);
+
+    //    if (!loaded.HasValue)
+    //    {
+    //        Debug.LogWarning("Failed to load calibration file.");
+    //        return;
+    //    }
+
+    //    calibrationParameters = loaded.Value;
+
+    //    // 提取 projectName 成為選單選項
+    //    List<string> projectNames = new List<string>();
+    //    foreach (var param in calibrationParameters.calibrationParameters)
+    //    {
+    //        if (!string.IsNullOrEmpty(param.projectName))
+    //            projectNames.Add(param.projectName);
+    //    }
+
+    //    SetOptions(projectNames);
+    //    Debug.Log("Dropdown options updated from calibration file.");
+    //    SelectScene();
+    //}
 
     public void SelectScene()
     {
         CalibrationParameter calibrationParameter = calibrationParameters.calibrationParameters[sceneExchange.value];
-        transform.position = calibrationParameter.position;
-        transform.eulerAngles = calibrationParameter.eulerAngles;
-        transform.localScale = calibrationParameter.localScale;
+        if(modeChanging.value == calibrationParameter.mode)
+        {
+            ChangeMode();
+        }
+        else
+        {
+            modeChanging.value = calibrationParameter.mode;
+        }
         cornerScreenFollower.SetCamDis(calibrationParameter.distance);
-        SetOutCamOrtSize();
+        transform.position = new Vector3(calibrationParameter.position.x, calibrationParameter.position.x, 0);
+        transform.eulerAngles = new Vector3(calibrationParameter.eulerAngles.x, calibrationParameter.eulerAngles.x, 0);
+        transform.localScale = calibrationParameter.localScale;
         DisplayTransformInfo();
     }
     void SaveCalibrationParameterData(bool isFileExists)
@@ -299,10 +329,11 @@ public class CornorScreenController : MonoBehaviour
                 new CalibrationParameter
                 {
                     projectName = "Default",
-                    position = transform.position,
-                    eulerAngles = transform.eulerAngles,
+                    position = new Vector3(transform.position.x, transform.position.x, 0),
+                    eulerAngles =  new Vector3(transform.eulerAngles.x, transform.eulerAngles.x, 0),
                     localScale = transform.localScale,
-                    distance = cornerScreenFollower.GetCamDis()
+                    distance = cornerScreenFollower.GetCamDis(),
+                    mode = modeChanging.value
                 }
     };
         }
@@ -312,10 +343,11 @@ public class CornorScreenController : MonoBehaviour
             calibrationParameters.calibrationParameters[0] = new CalibrationParameter
             {
                 projectName = "Default",
-                position = transform.position,
-                eulerAngles = transform.eulerAngles,
+                position = new Vector3(transform.position.x, transform.position.x, 0),
+                eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.x, 0),
                 localScale = transform.localScale,
-                distance = cornerScreenFollower.GetCamDis()
+                distance = cornerScreenFollower.GetCamDis(),
+                mode = modeChanging.value
             };
         }
 
