@@ -313,10 +313,13 @@ public class CornorScreenController : MonoBehaviour
         {
             modeChanging.value = calibrationParameter.mode;
         }
-        cornerScreenFollower.SetCamDis(calibrationParameter.distance);
-        transform.position = new Vector3(calibrationParameter.position.x, calibrationParameter.position.x, 0);
-        transform.eulerAngles = new Vector3(calibrationParameter.eulerAngles.x, calibrationParameter.eulerAngles.x, 0);
+
+        transform.position = new Vector3(calibrationParameter.position.x, calibrationParameter.position.y, 0);
+        transform.eulerAngles = new Vector3(calibrationParameter.eulerAngles.x, calibrationParameter.eulerAngles.y, 0);
         transform.localScale = calibrationParameter.localScale;
+
+        cornerScreenFollower.SetCamDis(calibrationParameter.distance);
+        SetOutCamOrtSize();
         DisplayTransformInfo();
     }
     void SaveCalibrationParameterData(bool isFileExists)
@@ -329,8 +332,8 @@ public class CornorScreenController : MonoBehaviour
                 new CalibrationParameter
                 {
                     projectName = "Default",
-                    position = new Vector3(transform.position.x, transform.position.x, 0),
-                    eulerAngles =  new Vector3(transform.eulerAngles.x, transform.eulerAngles.x, 0),
+                    position = new Vector3(transform.position.x, transform.position.y, 0),
+                    eulerAngles =  new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0),
                     localScale = transform.localScale,
                     distance = cornerScreenFollower.GetCamDis(),
                     mode = modeChanging.value
@@ -343,8 +346,8 @@ public class CornorScreenController : MonoBehaviour
             calibrationParameters.calibrationParameters[0] = new CalibrationParameter
             {
                 projectName = "Default",
-                position = new Vector3(transform.position.x, transform.position.x, 0),
-                eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.x, 0),
+                position = new Vector3(transform.position.x, transform.position.y, 0),
+                eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0),
                 localScale = transform.localScale,
                 distance = cornerScreenFollower.GetCamDis(),
                 mode = modeChanging.value
