@@ -9,7 +9,7 @@ public class SourceController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     [SerializeField] MeshRenderer[] meshRenderers;
     Image image;
     [SerializeField] [Range(0f, 1f)] float ratio;
-    bool isChanging = false;
+    bool isPushing = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +19,7 @@ public class SourceController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     // Update is called once per frame
     void Update()
     {
-        if (isChanging)
+        if (isPushing)
         {
             if (gameObject.name == "plus")
             {
@@ -49,12 +49,12 @@ public class SourceController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
         image.color = Color.gray;
-        isChanging = true;
+        isPushing = true;
     }
 
     void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
     {
         image.color = Color.white;
-        isChanging = false;
+        isPushing = false;
     }
 }
