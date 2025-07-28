@@ -29,18 +29,20 @@ public class OutputChange : MonoBehaviour
         }
         dropdownForCanvas.options.Clear();
         Dropdown.OptionDataList displayList = new Dropdown.OptionDataList();
-        //if (Display.displays.Length > 0)
-        //{
-        //    for (int i = 0; i < Display.displays.Length; i++)
-        //    {
-        //        if (i > 7) break;
-        //        Display.displays[i].Activate();
-        //        Dropdown.OptionData displayData = new Dropdown.OptionData();
-        //        displayData.text = i.ToString();
-        //        Debug.Log(Display.displays[i].ToString());
-        //        displayList.options.Add(displayData);
-        //    }
-        //}
+#if !UNITY_EDITOR
+        if (Display.displays.Length > 0)
+        {
+            for (int i = 0; i < Display.displays.Length; i++)
+            {
+                if (i > 7) break;
+                Display.displays[i].Activate();
+                Dropdown.OptionData displayData = new Dropdown.OptionData();
+                displayData.text = i.ToString();
+                Debug.Log(Display.displays[i].ToString());
+                displayList.options.Add(displayData);
+            }
+        }
+#endif
 #if UNITY_EDITOR
         foreach (Dropdown dropdown in dropdowns)
         {

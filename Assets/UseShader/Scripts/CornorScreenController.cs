@@ -331,7 +331,7 @@ public class CornorScreenController : MonoBehaviour
     {
                 new CalibrationParameter
                 {
-                    projectName = "Default",
+                    projectName = "AutoSave",
                     position = new Vector3(transform.position.x, transform.position.y, 0),
                     eulerAngles =  new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0),
                     localScale = transform.localScale,
@@ -345,7 +345,7 @@ public class CornorScreenController : MonoBehaviour
             calibrationParameters = this.calibrationParameters;
             calibrationParameters.calibrationParameters[0] = new CalibrationParameter
             {
-                projectName = "Default",
+                projectName = "AutoSave",
                 position = new Vector3(transform.position.x, transform.position.y, 0),
                 eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0),
                 localScale = transform.localScale,
