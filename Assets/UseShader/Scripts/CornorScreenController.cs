@@ -42,8 +42,8 @@ public class CornorScreenController : MonoBehaviour
     [SerializeField] RawImage refViewRawImage_Right;
     [SerializeField] OutputChange outputChange;
     CalibrationParameters calibrationParameters;
-    string jsonPath = "CalibrationData";
-    string jsonName = "CalibrationData.json";
+    [SerializeField] string jsonPath = "CalibrationData";
+    [SerializeField] string jsonName = "CalibrationData.json";
     // Start is called before the first frame update
     void Start()
     {
@@ -362,6 +362,6 @@ public class CornorScreenController : MonoBehaviour
     }
     void OnApplicationQuit()
     {
-        SaveCalibrationParameterData(true);
+        //SaveCalibrationParameterData(true);
     }
 }

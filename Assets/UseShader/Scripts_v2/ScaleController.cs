@@ -12,6 +12,7 @@ public class ScaleController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [SerializeField][Range(0f, 0.1f)] float speed;
     [SerializeField] ReferenceCameraController referenceCameraController;
     [SerializeField] CornorScreenCameraController cornorScreenCameraController;
+    [SerializeField] TransformInfoController TransformInfoController;
     // Start is called before the first frame update
     void Start()
     {
@@ -33,6 +34,7 @@ public class ScaleController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             }
             referenceCameraController.SetPosition();
             cornorScreenCameraController.SetOrthographicSize();
+            TransformInfoController.SetTransformInfo(cornerScreenTransform);
         }
     }
     public void SetScale(Vector3 scale)
@@ -40,6 +42,11 @@ public class ScaleController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         cornerScreenTransform.localScale = scale;
         referenceCameraController.SetPosition();
         cornorScreenCameraController.SetOrthographicSize();
+        TransformInfoController.SetTransformInfo(cornerScreenTransform);
+    }
+    public Vector3 GetScale()
+    {
+        return cornerScreenTransform.localScale;
     }
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {

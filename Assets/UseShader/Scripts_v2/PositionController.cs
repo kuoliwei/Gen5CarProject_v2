@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using static MovementModeController;
 
 public class PositionController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
@@ -13,6 +12,7 @@ public class PositionController : MonoBehaviour, IPointerDownHandler, IPointerUp
     [SerializeField][Range(0f, 0.1f)] float speed;
     [SerializeField] MovementModeController movementModeController;
     [SerializeField] ReferenceCameraController referenceCameraController;
+    [SerializeField] TransformInfoController TransformInfoController;
     // Start is called before the first frame update
     void Start()
     {
@@ -41,12 +41,18 @@ public class PositionController : MonoBehaviour, IPointerDownHandler, IPointerUp
                 cornerScreenTransform.position += Vector3.right * Time.deltaTime * speed;
             }
             referenceCameraController.SetPosition();
+            TransformInfoController.SetTransformInfo(cornerScreenTransform);
         }
     }
     public void SetPosition(Vector3 position)
     {
         cornerScreenTransform.position = position;
         referenceCameraController.SetPosition();
+        TransformInfoController.SetTransformInfo(cornerScreenTransform);
+    }
+    public Vector3 GetPosition()
+    {
+        return cornerScreenTransform.position;
     }
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {

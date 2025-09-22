@@ -8,6 +8,7 @@ Shader "FiveGenCar/CornerScreen"
         _CamPosX ("CamPosX", float) = 0
         _CamPosY ("CamPosY", float) = 0
         _CamPosZ ("CamPosZ", float) = 0
+        _Mode ("Mode", int) = 1
     }
     SubShader
     {
@@ -45,6 +46,7 @@ Shader "FiveGenCar/CornerScreen"
             float _CamPosX;
             float _CamPosY;
             float _CamPosZ;
+            int _Mode;
 
             v2f vert (appdata v)
             {
@@ -65,13 +67,26 @@ Shader "FiveGenCar/CornerScreen"
                 float2 opp = float2((i.worldPos.x-_CamPosX) / ratio, (i.worldPos.y-_CamPosY));
                 float2 angle = float2(atan(opp.x/adj), atan(opp.y/adj));
                 float2 offset = float2(abs(i.worldPos.z) * tan(angle.x), abs(i.worldPos.z) * tan(angle.y));
-                HorizontalProjection += offset;
+                if(_Mode == 1)
+                {
+                    HorizontalProjection += offset; // 3D Mapping
+                }
                 fixed4 col = tex2D(_MainTex, HorizontalProjection);
                 // apply fog
                 //UNITY_APPLY_FOG(i.fogCoord, col);
-                if (abs(i.worldPos.x) > 0.4 * ratio - abs(offset.x) || abs(i.worldPos.y) > 0.5 - abs(offset.y))
+                if(_Mode == 1)
                 {
-                return fixed4(0, 0, 0, 0);
+                    if (abs(i.worldPos.x) > 0.4 * ratio - abs(offset.x) || abs(i.worldPos.y) > 0.5 - abs(offset.y)) // 3D Mapping
+                    {
+                        return fixed4(0, 0, 0, 1);
+                    }
+                }
+                else
+                {
+                    if (abs(i.worldPos.x) > 0.5 * ratio || abs(i.worldPos.y) > 0.5) // 2D Mapping
+                    {
+                        return fixed4(0, 0, 0, 1);
+                    }
                 }
                 return col;
             }

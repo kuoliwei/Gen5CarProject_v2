@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MovementModeController : MonoBehaviour
 {
     [SerializeField] Text text;
-    public enum MovementMode { position, rotation }
+
     MovementMode mode = MovementMode.position;
     public MovementMode Mode => mode;
     // Start is called before the first frame update

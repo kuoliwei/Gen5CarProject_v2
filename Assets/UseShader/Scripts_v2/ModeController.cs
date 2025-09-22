@@ -10,8 +10,8 @@ public class ModeController : MonoBehaviour
     [SerializeField] RenderTexture rt_Right;
     [SerializeField] RenderTexture rt_Left_Width;
     [SerializeField] RenderTexture rt_Right_Width;
-    [SerializeField] MeshRenderer outputQuad_Left;
-    [SerializeField] MeshRenderer outputQuad_Right;
+    [SerializeField] RawImage outputCanvas_Left;
+    [SerializeField] RawImage outputCanvas_Right;
     [SerializeField] RawImage referenceRawImage_Left;
     [SerializeField] RawImage referenceRawImage_Right;
     [SerializeField] Camera cornerCamera_Left;
@@ -44,6 +44,10 @@ public class ModeController : MonoBehaviour
             ChangeMode();
         }
     }
+    public int GetDropdownValue()
+    {
+        return dropdown.value;
+    }
     public void ChangeMode()
     {
         switch (dropdown.value)
@@ -66,8 +70,8 @@ public class ModeController : MonoBehaviour
             case Mode._laboratory:
                 cornerCamera_Left.targetTexture = rt_Left;
                 cornerCamera_Right.targetTexture = rt_Right;
-                outputQuad_Left.sharedMaterial.mainTexture = rt_Left;
-                outputQuad_Right.sharedMaterial.mainTexture = rt_Right;
+                outputCanvas_Left.texture = rt_Left;
+                outputCanvas_Right.texture = rt_Right;
                 referenceRawImage_Left.texture = rt_Left;
                 referenceRawImage_Right.texture = rt_Right;
                 for (int i = 0; i < 2; i++)
@@ -78,8 +82,8 @@ public class ModeController : MonoBehaviour
             case Mode._5GCar:
                 cornerCamera_Left.targetTexture = rt_Left_Width;
                 cornerCamera_Right.targetTexture = rt_Right_Width;
-                outputQuad_Left.sharedMaterial.mainTexture = rt_Left_Width;
-                outputQuad_Right.sharedMaterial.mainTexture = rt_Right_Width;
+                outputCanvas_Left.texture = rt_Left_Width;
+                outputCanvas_Right.texture = rt_Right_Width;
                 referenceRawImage_Left.texture = rt_Left_Width;
                 referenceRawImage_Right.texture = rt_Right_Width;
                 for (int i = 0; i < 2; i++)

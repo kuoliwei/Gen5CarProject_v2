@@ -193,7 +193,7 @@ QualitySettings:
     excludedTargetPlatforms: []
   - serializedVersion: 2
     name: Ultra
-    pixelLightCount: 4
+    pixelLightCount: 0
     shadows: 0
     shadowResolution: 3
     shadowProjection: 1
@@ -206,11 +206,11 @@ QualitySettings:
     skinWeights: 4
     textureQuality: 0
     anisotropicTextures: 2
-    antiAliasing: 2
-    softParticles: 1
+    antiAliasing: 0
+    softParticles: 0
     softVegetation: 1
-    realtimeReflectionProbes: 1
-    billboardsFaceCameraPosition: 1
+    realtimeReflectionProbes: 0
+    billboardsFaceCameraPosition: 0
     vSyncCount: 0
     realtimeGICPUUsage: 100
     lodBias: 2

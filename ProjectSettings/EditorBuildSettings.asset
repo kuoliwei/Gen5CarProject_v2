@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/UseShader/Scenes/ShaderPractice.unity
     guid: 9a006611bda8c814099cbb470a74727f
+  - enabled: 1
+    path: Assets/UseShader/Scenes_v2/CornerScreen_v2.unity
+    guid: ca10b8093f2696144b97046272d58ac7
   m_configObjects: {}

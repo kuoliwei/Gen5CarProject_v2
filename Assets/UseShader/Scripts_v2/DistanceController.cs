@@ -12,6 +12,7 @@ public class DistanceController : MonoBehaviour, IPointerDownHandler, IPointerUp
     bool isPushing;
     [SerializeField][Range(0f, 0.1f)] float speed;
     [SerializeField] ReferenceCameraController referenceCameraController;
+    [SerializeField] DistanceInfoController distanceInfoController;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,12 +33,18 @@ public class DistanceController : MonoBehaviour, IPointerDownHandler, IPointerUp
                 referenceCameraTransform.position += new Vector3(0, 0, 1) * Time.deltaTime * speed;
             }
             referenceCameraController.SetPosition();
+            distanceInfoController.SetDistanceInfo(referenceCameraTransform.position.z);
         }
     }
-    public void SetDistance(Vector3 distance)
+    public void SetDistance(float distance)
     {
-        referenceCameraTransform.position = distance;
+        referenceCameraTransform.position = new Vector3(referenceCameraTransform.position.x, referenceCameraTransform.position.y, distance);
         referenceCameraController.SetPosition();
+        distanceInfoController.SetDistanceInfo(referenceCameraTransform.position.z);
+    }
+    public float GetDistance()
+    {
+        return referenceCameraTransform.position.z;
     }
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
